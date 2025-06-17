@@ -12,7 +12,7 @@ const FixCode: React.FC = () => {
     setFixedCode('');
 
     try {
-      const response = await axios.post('http://localhost:5000/api/fix-code', {
+      const response = await axios.post('http://codefixer-wine.vercel.app/api/fix', {
         code: inputCode,
         parser: parser
       });
