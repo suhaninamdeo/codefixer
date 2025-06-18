@@ -9,6 +9,8 @@ export default function handler(req, res) {
     return res.status(400).json({ error: 'Code and language are required' });
   }
 
-  const fixedCode = `// Fixed ${language} code\n${code}`;
+  // Temporary dummy response
+  const fixedCode = `// This is a dummy fixed version of your ${language} code\n${code}`;
+
   res.status(200).json({ fixedCode });
 }
