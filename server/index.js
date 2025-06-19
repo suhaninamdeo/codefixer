@@ -1,15 +1,21 @@
+import express from 'express';
+import cors from 'cors';
+
+const app = express();
+const PORT = 3000;
+
+app.use(cors());
+app.use(express.json());
+
 app.post('/api/fix-code', (req, res) => {
-  const { code, parser } = req.body;
+  const { code, language } = req.body;
 
-  if (!code) {
-    return res.status(400).json({ error: 'No code provided' });
-  }
+  // Dummy response
+  const fixedCode = `console.log("Hello from dummy CodeFixer!");`;
 
-  try {
-    const fixedCode = prettier.format(code, { parser: parser || 'babel' });
-    res.json({ fixedCode });
-  } catch (err) {
-    console.error('Prettier error:', err.message);
-    res.status(500).json({ error: 'Failed to format code. Please check your syntax or parser.' });
-  }
+  res.json({ fixedCode });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });

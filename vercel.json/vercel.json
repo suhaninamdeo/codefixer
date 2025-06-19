@@ -1,0 +1,14 @@
+{
+  "builds": [
+    {
+      "src": "server/api/fix.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/fix",
+      "dest": "server/api/fix.js"
+    }
+  ]
+}
