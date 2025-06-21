@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/fix",
+      "destination": "/api/fix.js"
+    }
+  ]
+}
