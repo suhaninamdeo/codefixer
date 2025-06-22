@@ -1,85 +1,81 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import { useState } from "react";
 
-const FixCode: React.FC = () => {
-  const [inputCode, setInputCode] = useState('');
-  const [fixedCode, setFixedCode] = useState('');
-  const [error, setError] = useState('');
-  const [parser, setParser] = useState('babel'); // default to JavaScript (babel)
+const FixCode = () => {
+  const [code, setCode] = useState("");
+  const [language, setLanguage] = useState("JavaScript");
+  const [result, setResult] = useState("");
+  const [error, setError] = useState("");
 
-  const handleFixCode = async () => {
-    setError('');
-    setFixedCode('');
+  const handleFix = async () => {
+    setResult("");
+    setError("");
 
     try {
-      const response = await axios.post('https://codefixer-wine.vercel.app/api/fix', {
-        code: inputCode,
-        parser: parser
+      const response = await fetch("/api/fix-code", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code, language }),
       });
 
-      if (response.data.fixedCode) {
-        setFixedCode(response.data.fixedCode);
+      const data = await response.json();
+
+      if (response.ok) {
+        setResult(data.fixedCode);
       } else {
-        setError('❌ No formatted code returned');
+        setError(data.error || "Failed to format code");
       }
     } catch (err) {
-      console.error(err);
-      setError('❌ Failed to format code');
-    }
-  };
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(fixedCode);
-      alert('✅ Code copied to clipboard!');
-    } catch {
-      alert('❌ Failed to copy code');
+      setError("Failed to connect to server");
     }
   };
 
   return (
-    <div className="container mt-5">
-      <h1>Fix Your Code</h1>
+    <div className="container my-5">
+      <h2 className="mb-4">Fix Your Code</h2>
 
-      <div className="mb-2">
-        <label>Select code type:</label>
+      <div className="mb-3">
+        <label className="form-label">Select code type:</label>
         <select
           className="form-select"
-          value={parser}
-          onChange={(e) => setParser(e.target.value)}
+          value={language}
+          onChange={(e) => setLanguage(e.target.value)}
         >
-          <option value="babel">JavaScript</option>
-          <option value="typescript">TypeScript</option>
-          <option value="css">CSS</option>
-          <option value="json">JSON</option>
-          <option value="html">HTML</option>
+          <option value="JavaScript">JavaScript</option>
+          <option value="Python">Python</option>
+          <option value="C++">C++</option>
+          <option value="Java">Java</option>
         </select>
       </div>
 
-      <textarea
-        className="form-control mb-2"
-        rows={8}
-        placeholder="Paste your code here"
-        value={inputCode}
-        onChange={(e) => setInputCode(e.target.value)}
-      />
+      <div className="mb-3">
+        <textarea
+          className="form-control"
+          rows={8}
+          placeholder="Paste your code here"
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+        ></textarea>
+      </div>
 
-      <button className="btn btn-primary mb-2 me-2" onClick={handleFixCode}>
+      <button className="btn btn-primary mb-3" onClick={handleFix}>
         Fix Code
       </button>
 
-      {fixedCode && (
-        <button className="btn btn-secondary mb-2" onClick={handleCopy}>
-          Copy Fixed Code
-        </button>
+      {result && (
+        <div className="alert alert-success" style={{ whiteSpace: "pre-wrap" }}>
+          <strong>✅ Fixed Code:</strong>
+          <br />
+          {result}
+        </div>
       )}
 
-      <textarea
-        className="form-control"
-        rows={8}
-        readOnly
-        value={fixedCode || error}
-      />
+      {error && (
+        <div className="alert alert-danger">
+          ❌ {error}
+        </div>
+      )}
     </div>
   );
 };
