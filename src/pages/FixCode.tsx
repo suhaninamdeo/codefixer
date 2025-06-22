@@ -1,81 +1,64 @@
-import { useState } from "react";
+// src/pages/FixCode.tsx
+import React, { useState } from 'react';
 
-const FixCode = () => {
-  const [code, setCode] = useState("");
-  const [language, setLanguage] = useState("JavaScript");
-  const [result, setResult] = useState("");
-  const [error, setError] = useState("");
+const FixCode: React.FC = () => {
+  const [inputCode, setInputCode] = useState('');
+  const [language, setLanguage] = useState('JavaScript');
+  const [fixedCode, setFixedCode] = useState('');
+  const [error, setError] = useState('');
 
-  const handleFix = async () => {
-    setResult("");
-    setError("");
-
+  const handleFixCode = async () => {
+    setError('');
+    setFixedCode('');
     try {
-      const response = await fetch("/api/fix-code", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ code, language }),
+      const response = await fetch('/api/fix-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: inputCode, language }),
       });
-
       const data = await response.json();
-
-      if (response.ok) {
-        setResult(data.fixedCode);
-      } else {
-        setError(data.error || "Failed to format code");
+      if (!response.ok) {
+        throw new Error(data.error || 'Server error');
       }
-    } catch (err) {
-      setError("Failed to connect to server");
+      setFixedCode(data.fixedCode);
+    } catch (err: any) {
+      setError('❌ ' + err.message);
     }
   };
 
   return (
-    <div className="container my-5">
-      <h2 className="mb-4">Fix Your Code</h2>
-
-      <div className="mb-3">
-        <label className="form-label">Select code type:</label>
+    <div style={{ maxWidth: 600, margin: 'auto', padding: '2rem' }}>
+      <h1>Fix Your Code</h1>
+      <label>
+        Select code type:
         <select
-          className="form-select"
           value={language}
           onChange={(e) => setLanguage(e.target.value)}
         >
-          <option value="JavaScript">JavaScript</option>
-          <option value="Python">Python</option>
-          <option value="C++">C++</option>
-          <option value="Java">Java</option>
+          <option>JavaScript</option>
+          <option>TypeScript</option>
+          <option>Python</option>
         </select>
-      </div>
+      </label>
 
-      <div className="mb-3">
-        <textarea
-          className="form-control"
-          rows={8}
-          placeholder="Paste your code here"
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-        ></textarea>
-      </div>
+      <textarea
+        rows={8}
+        placeholder="Paste your code here"
+        value={inputCode}
+        onChange={(e) => setInputCode(e.target.value)}
+        style={{ width: '100%', marginTop: '1rem' }}
+      />
 
-      <button className="btn btn-primary mb-3" onClick={handleFix}>
+      <button onClick={handleFixCode} style={{ margin: '1rem 0' }}>
         Fix Code
       </button>
 
-      {result && (
-        <div className="alert alert-success" style={{ whiteSpace: "pre-wrap" }}>
-          <strong>✅ Fixed Code:</strong>
-          <br />
-          {result}
-        </div>
-      )}
-
-      {error && (
-        <div className="alert alert-danger">
-          ❌ {error}
-        </div>
-      )}
+      <textarea
+        rows={8}
+        readOnly
+        value={fixedCode || error}
+        style={{ width: '100%' }}
+      />
     </div>
   );
 };
