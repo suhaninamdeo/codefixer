@@ -1,66 +1,67 @@
 // src/pages/FixCode.tsx
-import React, { useState } from 'react';
 
-const FixCode: React.FC = () => {
-  const [inputCode, setInputCode] = useState('');
-  const [language, setLanguage] = useState('JavaScript');
-  const [fixedCode, setFixedCode] = useState('');
-  const [error, setError] = useState('');
+import React, { useState } from "react";
+import axios from "axios";
+
+const FixPage: React.FC = () => {
+  const [code, setCode] = useState("");
+  const [fixedCode, setFixedCode] = useState("");
+  const [error, setError] = useState("");
 
   const handleFixCode = async () => {
-    setError('');
-    setFixedCode('');
+    setError("");
+    setFixedCode("");
+
     try {
-      const response = await fetch('/api/fix-code', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: inputCode, language }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Server error');
-      }
-      setFixedCode(data.fixedCode);
+      const response = await axios.post(
+        "https://codefixer-q5yh.vercel.app/api/fix", // ✅ Your deployed backend URL
+        { code }
+      );
+
+      setFixedCode(response.data.fixedCode || response.data);
     } catch (err: any) {
-      setError('❌ ' + err.message);
+      console.error(err);
+      setError(err.response?.data?.error || "Something went wrong while fixing the code.");
     }
   };
 
   return (
-    <div style={{ maxWidth: 600, margin: 'auto', padding: '2rem' }}>
-      <h1>Fix Your Code</h1>
-      <label>
-        Select code type:
-        <select
-          value={language}
-          onChange={(e) => setLanguage(e.target.value)}
-        >
-          <option>JavaScript</option>
-          <option>TypeScript</option>
-          <option>Python</option>
-        </select>
-      </label>
+    <div className="container mt-5">
+      <h2 className="mb-3">Fix Your Code</h2>
+
+      <label htmlFor="language">Select code type:</label>
+      <select id="language" className="form-select mb-3" disabled>
+        <option>JavaScript</option>
+      </select>
 
       <textarea
-        rows={8}
-        placeholder="Paste your code here"
-        value={inputCode}
-        onChange={(e) => setInputCode(e.target.value)}
-        style={{ width: '100%', marginTop: '1rem' }}
+        rows={10}
+        className="form-control mb-3"
+        placeholder="Enter your code here..."
+        value={code}
+        onChange={(e) => setCode(e.target.value)}
       />
 
-      <button onClick={handleFixCode} style={{ margin: '1rem 0' }}>
+      <button className="btn btn-dark mb-3" onClick={handleFixCode}>
         Fix Code
       </button>
 
-      <textarea
-        rows={8}
-        readOnly
-        value={fixedCode || error}
-        style={{ width: '100%' }}
-      />
+      {error && (
+        <div className="alert alert-danger">
+          ❌ {error}
+        </div>
+      )}
+
+      {fixedCode && (
+        <textarea
+          className="form-control"
+          rows={10}
+          readOnly
+          value={fixedCode}
+        />
+      )}
     </div>
   );
 };
 
-export default FixCode;
+export default FixPage;
